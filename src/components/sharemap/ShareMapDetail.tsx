@@ -114,7 +114,9 @@ export default function ShareMapDetail() {
                 }
               )}
             </div>
-            <Button className="w-full h-[38px] mb-[16px]">참여하기</Button>
+            <Link href="/sharemap/sharemapjoin">
+              <Button className="w-full h-[38px] mb-[16px]">참여하기</Button>
+            </Link>
             <Button
               buttonStyle="white"
               className="w-full h-[38px]"

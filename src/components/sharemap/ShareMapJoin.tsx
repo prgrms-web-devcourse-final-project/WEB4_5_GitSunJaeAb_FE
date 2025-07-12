@@ -5,26 +5,22 @@ import {
   Heart,
   Siren,
   Eye,
-  Download,
   ChevronDown,
-  PlayCircle,
   ChevronsRight,
   ChevronsLeft,
-  Navigation,
   MapPin,
   Calendar,
   ChevronLeft,
+  Plus,
 } from 'lucide-react';
 import Button from '../ui/Button';
 import ReportModal from '../common/modal/ReportModal';
 import useSidebar from '@/utils/useSidebar';
-import Link from 'next/link';
-import LayerDetail from '../ui/layer/LayerDetail';
-import MarkerDetail from '../ui/layer/MarkerDetail';
 
-export default function ShareClickDetail() {
-  const [routeEnabled, setRouteEnabled] = useState(true);
-  const [animationEnabled, setAnimationEnabled] = useState(true);
+import Input from '../ui/Input';
+import LayerEdit from '../ui/layer/LayerEdit';
+
+export default function ShareMapJoin() {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const { isOpen, toggle, close } = useSidebar();
 
@@ -83,7 +79,7 @@ export default function ShareClickDetail() {
       >
         {/* 닫기 버튼 */}
         <div
-          className="flex items-center mb-5 space-x-[-16px] cursor-pointer"
+          className="flex items-center mb-4 space-x-[-16px] cursor-pointer"
           onClick={close}
         >
           <ChevronsRight size={35} />
@@ -123,86 +119,74 @@ export default function ShareClickDetail() {
 
         {/* 제목, 설명, 태그 */}
         <div>
-          <h2 className="text-2xl font-semibold mb-2">
+          <h2 className="text-2xl font-semibold mb-4">
             서울 대학로 맛집 추천좀
           </h2>
-          <p className="text-sm text-black mb-2">
+          <p className="text-sm text-black mb-4">
             나 송지은인데 디자인 그만하고 대학로 갈거니까 맛집 알아와라
           </p>
         </div>
 
-        {/* 토글 스위치 */}
-        <div className="space-y-3 mt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm">
-              <Navigation size={18} />
-              경로
-            </div>
-            <button
-              onClick={() => setRouteEnabled(!routeEnabled)}
-              className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${
-                routeEnabled ? 'bg-[#005C54]' : 'bg-gray-300'
-              }`}
-            >
-              <div
-                className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                  routeEnabled ? 'translate-x-5' : ''
-                }`}
-              />
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm">
-              <PlayCircle size={18} />
-              애니메이션
-            </div>
-            <button
-              onClick={() => setAnimationEnabled(!animationEnabled)}
-              className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${
-                animationEnabled ? 'bg-[#005C54]' : 'bg-gray-300'
-              }`}
-            >
-              <div
-                className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                  animationEnabled ? 'translate-x-5' : ''
-                }`}
-              />
-            </button>
-          </div>
-        </div>
-
         {/* 레이어 목록 */}
-        <div className="border-t border-[var(--gray-50)] space-y-[15px] mt-4">
-          <div className="flex items-center justify-between mt-4 mb-4 mr-3">
-            <h3 className="text-xl text-black">레이어 및 마커</h3>
-            <Download size={20} className="cursor-pointer text-[#000]" />
+        <div className="border-t border-[var(--gray-50)] pt-[20px]">
+          <div className="flex items-center justify-between mb-[15px]">
+            <h3 className="text-xl text-black">레이어 및 마커 관리</h3>
           </div>
-          <LayerDetail title="레이어1">
-            <MarkerDetail isTextArea />
-          </LayerDetail>
-          <LayerDetail title="레이어2">
-            <MarkerDetail isTextArea />
-            <MarkerDetail isTextArea />
-            <MarkerDetail isTextArea />
-          </LayerDetail>
-          <LayerDetail title="레이어3">
-            <MarkerDetail isTextArea />
-            <MarkerDetail isTextArea />
-          </LayerDetail>
-        </div>
 
-        {/* 참여하기 버튼 */}
-        <Link href="/sharemap/sharemapjoin">
-          <div className="flex justify-end pt-6">
+          <div className="flex gap-2 mb-3">
+            <Input
+              type="text"
+              placeholder="해시태그 추가"
+              className="h-[44px] border-[#E4E4E4] rounded-md"
+            />
             <Button
               buttonStyle="smGreen"
-              className="w-[114px] h-[40px] text-[18px] font-semibold"
+              className="w-[76px] h-[44px] text-3xl font-medium"
             >
-              참여하기
+              <Plus size={30} />
             </Button>
           </div>
-        </Link>
+
+          <div className="relative mb-3">
+            <select
+              className="w-full h-[44px] text-sm border border-[#E4E4E4] rounded px-3 appearance-none"
+              defaultValue=""
+            >
+              <option value="" disabled hidden>
+                레이어 선택
+              </option>
+              <option>게임</option>
+              <option>여행</option>
+              <option>맛집</option>
+            </select>
+
+            <ChevronDown
+              size={18}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <LayerEdit title="레이어1" isTextArea />
+            <LayerEdit title="레이어1" isTextArea />
+            <LayerEdit title="레이어1" isTextArea />
+          </div>
+
+          <div className="flex justify-end mt-4 gap-5">
+            <Button
+              buttonStyle="white"
+              className="text-[18px] w-[80px] h-[40px] text-[var(--black)] font-semibold"
+            >
+              취소
+            </Button>
+            <Button
+              buttonStyle="smGreen"
+              className="text-[18px] w-[80px] h-[40px]"
+            >
+              완료
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* 신고 모달 */}
