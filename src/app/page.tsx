@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from 'next/link'
 
 export default async function page() {
   return (
@@ -39,7 +39,11 @@ export default async function page() {
         <Link href="/admin">
           <button>관리자페이지</button>
         </Link>
+
+        <Link href="/mypage">
+          <button>마이페이지</button>
+        </Link>
       </div>
     </>
-  );
+  )
 }
