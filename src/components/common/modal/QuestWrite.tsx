@@ -2,7 +2,7 @@
 
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ImagePlus } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -64,7 +64,7 @@ export default function QuestWrite() {
             className="object-contain"
           />
         ) : (
-          <div className="text-[#9F9F9F]">이미지를 업로드하려면 클릭하세요</div>
+          <ImagePlus className="text-[var(--gray-200)] absolute left-1/2 top-1/2 -translate-1/2" />
         )}
       </div>
 

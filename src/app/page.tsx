@@ -4,6 +4,10 @@ export default async function page() {
   return (
     <>
       <div className="flex gap-4">
+        <Link href="/landingpage">
+          <button>랜딩페이지</button>
+        </Link>
+
         <Link href="/login">
           <button>로그인</button>
         </Link>
@@ -20,16 +24,8 @@ export default async function page() {
           <button>로드맵 디테일</button>
         </Link>
 
-        <Link href="/loadmap/write">
-          <button>로드맵 작성페이지</button>
-        </Link>
-
         <Link href="/sharemap">
           <button>공유지도 디테일</button>
-        </Link>
-
-        <Link href="/sharemap/shareclickdetail">
-          <button>공유지도 보여주기</button>
         </Link>
 
         <Link href="/dashbord/quest/main/1">

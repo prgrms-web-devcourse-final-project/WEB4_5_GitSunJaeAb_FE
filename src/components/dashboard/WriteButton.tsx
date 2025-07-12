@@ -13,7 +13,7 @@ export default function WriteButton({ type }: CardListProps) {
     } else if (type === 'roadmap') {
       router.push('/loadmap/write');
     } else if (type === 'sharemap') {
-      router.push('/sharemap');
+      router.push('/sharemap/shareadd');
     }
   };
 
