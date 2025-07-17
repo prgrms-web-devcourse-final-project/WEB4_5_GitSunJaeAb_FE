@@ -1,4 +1,6 @@
+import TanstackProvider from '@/providers/TanstackProvider';
 import '../styles/index.css';
+import InitAuthProvider from '@/providers/InitAuthProvider';
 
 export const metadata = {
   title: 'Next.js',
@@ -12,7 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <TanstackProvider>
+          <InitAuthProvider>{children}</InitAuthProvider>
+        </TanstackProvider>
+      </body>
     </html>
   );
 }

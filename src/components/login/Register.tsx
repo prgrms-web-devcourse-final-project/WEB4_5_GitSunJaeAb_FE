@@ -6,52 +6,87 @@ import Link from 'next/link';
 import Button from '../ui/Button';
 import { useRouter } from 'next/navigation';
 import { signupUser } from '@/libs/auth';
-import { AxiosError } from 'axios';
 import PasswordInput from '../ui/PasswrodInput';
-// import PasswordInput from '../ui/PasswrodInput';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 export default function Register() {
   const router = useRouter();
-  const [agree, setAgree] = useState(false);
 
-  const [form, setForm] = useState({
+  // 유효성 검사 유틸 추가
+  const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+  const validatePassword = (pw: string) =>
+    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/.test(pw);
+
+  const { mutate: signupMutate, isPending } = useMutation({
+    mutationFn: signupUser,
+    onSuccess: () => {
+      alert('회원가입 성공!');
+      router.push('/login');
+    },
+    onError: (error) => {
+      const err = error as AxiosError<{ code?: string; message?: string }>;
+      const code = err.response?.data?.code;
+      const message = err.response?.data?.message;
+      switch (code) {
+        case '4092':
+          console.log('이미 가입된 이메일입니다.');
+          break;
+        case '4091':
+          console.log('중복된 닉네임입니다.');
+          break;
+        case '5000':
+          console.log('서버 내부 오류입니다.');
+          break;
+        default:
+          console.log(message || '회원가입 실패');
+      }
+    },
+  });
+
+  const [formData, setFormData] = useState({
     name: '',
     nickname: '',
     email: '',
     password: '',
-    confirmPassword: '',
   });
 
+  const [agree, setAgree] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'confirmPassword') {
+      setConfirmPassword(value);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !form.name ||
-      !form.nickname ||
-      !form.email ||
-      !form.password ||
-      !form.confirmPassword
-    ) {
+    const { name, nickname, email, password } = formData;
+
+    if (!name || !nickname || !email || !password) {
       return alert('모든 항목을 입력해주세요.');
     }
 
+    if (!validateEmail(email)) {
+      return alert('올바른 이메일 형식을 입력해주세요.');
+    }
+
+    if (!validatePassword(password)) {
+      return alert('비밀번호는 8~12자의 영문과 숫자를 포함해야 합니다.');
+    }
+
     if (!agree) return alert('이용약관에 동의해주세요.');
-    if (form.password !== form.confirmPassword)
+
+    if (password !== confirmPassword)
       return alert('비밀번호가 일치하지 않습니다.');
 
-    try {
-      await signupUser(form.name, form.nickname, form.email, form.password);
-      alert('회원가입 성공!');
-      router.push('/login');
-    } catch (err: unknown) {
-      const error = err as AxiosError<{ message?: string }>;
-      console.error('회원가입 실패:', error.response?.data);
-      alert(error.response?.data?.message || '회원가입 실패');
-    }
+    signupMutate({ name, nickname, email, password });
   };
 
   return (
@@ -71,7 +106,7 @@ export default function Register() {
           label="이름"
           type="text"
           placeholder="이름을 입력하세요"
-          value={form.name}
+          value={formData.name}
           onChange={handleChange}
           name="name"
         />
@@ -81,7 +116,7 @@ export default function Register() {
           label="닉네임"
           type="text"
           placeholder="닉네임을 입력하세요"
-          value={form.nickname}
+          value={formData.nickname}
           onChange={handleChange}
           name="nickname"
         />
@@ -91,7 +126,7 @@ export default function Register() {
           label="이메일"
           type="email"
           placeholder="이메일을 입력하세요"
-          value={form.email}
+          value={formData.email}
           onChange={handleChange}
           name="email"
         />
@@ -100,7 +135,7 @@ export default function Register() {
         <div className="relative">
           <PasswordInput
             name="password"
-            value={form.password}
+            value={formData.password}
             onChange={handleChange}
           />
         </div>
@@ -109,7 +144,7 @@ export default function Register() {
         <div className="relative">
           <PasswordInput
             placeholder="비밀번호를 다시 입력하세요"
-            value={form.confirmPassword}
+            value={confirmPassword}
             onChange={handleChange}
             name="confirmPassword"
           />
@@ -133,6 +168,7 @@ export default function Register() {
           fullWidth
           className="h-[45px] py-2 rounded-lg text-sm"
           type="submit"
+          disabled={isPending}
         >
           회원가입
         </Button>

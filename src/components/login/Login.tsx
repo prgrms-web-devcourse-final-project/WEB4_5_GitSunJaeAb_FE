@@ -5,46 +5,65 @@ import Input from '../ui/Input';
 import Link from 'next/link';
 import Button from '../ui/Button';
 import { useRouter } from 'next/navigation';
-import { loginUser } from '@/libs/auth';
+import { getUser, loginUser } from '@/libs/auth';
 import { AxiosError } from 'axios';
 import PasswordInput from '../ui/PasswrodInput';
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/store/useAuthStore';
+import { setAccessTokenToStore } from '@/utils/setAccessTokenToStore';
 
 export default function Login() {
+  const router = useRouter();
+
   const [form, setForm] = useState({
     email: '',
     password: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await loginUser(form.email, form.password);
-
-      console.log('로그인 응답 전체:', response);
-      const accessToken = response.token?.accessToken;
-
-      if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
-        // console.log(
-        //   '로그인 성공. accessToken localStorage에 저장됨:',
-        //   accessToken
-        // );
-        router.push('/');
-      } else {
-        console.warn('accessToken이 응답에 없음. 로그인 실패 처리 필요');
+  const { mutate: loginMutate, isPending } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: async (data) => {
+      const accessToken = data.token?.accessToken;
+      if (!accessToken) {
+        alert('AccessToken 없음');
+        return;
       }
-    } catch (err) {
-      const error = err as AxiosError<{ message?: string }>;
-      console.error('로그인 에러:', error);
-      alert(error.response?.data?.message || '로그인 실패');
+
+      // 토큰 저장 및 Zustand 동기화
+      await setAccessTokenToStore(accessToken);
+
+      // 사용자 정보 수동 요청 → 캐시에 저장됨
+      const user = await queryClient.fetchQuery({
+        queryKey: ['user'],
+        queryFn: getUser,
+      });
+
+      useAuthStore.getState().setUser(user);
+
+      alert('로그인 성공');
+      router.push('/');
+    },
+    onError: (error: unknown) => {
+      const err = error as AxiosError<{ message?: string }>;
+      alert(err.response?.data?.message || '로그인 실패');
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!form.email || !form.password) {
+      return alert('이메일과 비밀번호를 입력해주세요.');
     }
+
+    loginMutate(form);
   };
 
   return (
@@ -57,7 +76,7 @@ export default function Login() {
       {/* 로그인 */}
       <form
         className="flex flex-col gap-6 w-full max-w-lg mx-auto"
-        onSubmit={handleLogin}
+        onSubmit={handleSubmit}
       >
         {/* 이메일 */}
         <Input
@@ -84,6 +103,7 @@ export default function Login() {
           fullWidth
           className="h-[45px] py-2 rounded-lg text-sm"
           type="submit"
+          disabled={isPending}
         >
           로그인
         </Button>
@@ -112,7 +132,7 @@ export default function Login() {
             href="/register"
             className="text-[var(--primary-300)] font-semibold cursor-pointer hover:underline"
           >
-            회원가입하기
+            회원가입
           </Link>
         </p>
       </form>

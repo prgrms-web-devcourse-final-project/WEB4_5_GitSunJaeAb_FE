@@ -1,21 +1,44 @@
 import axios from 'axios';
-// import { APIUrl } from './api';
-// import Cookies from 'js-cookie';
 
-// Next.js API Route를 거쳐 처리
-// 쿠키 요청
 const axiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
 });
 
-// accessToken 쿠키를 가져와 Authorization 헤더에 추가
+// 요청 시 accessToken 헤더에 포함
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
+
+// 응답 시 accessToken 재발급되면 갱신
+axiosInstance.interceptors.response.use(
+  async (response) => {
+    const newAccessToken = response.data?.token?.accessToken;
+
+    if (newAccessToken && typeof window !== 'undefined') {
+      localStorage.setItem('accessToken', newAccessToken);
+
+      // Zustand 상태에 반영
+      const mod = await import('@/store/useAuthStore');
+      mod.useAuthStore.getState().setAccessToken(newAccessToken);
+    }
+
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      console.warn('응답 오류:', error.response.data);
+    } else {
+      console.warn('네트워크 오류 또는 서버 미응답');
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;
