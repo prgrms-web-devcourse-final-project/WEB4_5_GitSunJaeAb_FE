@@ -41,22 +41,8 @@ export type ShareMapCardProps = {
   className?: string;
 };
 
-export type MypageCardProps = {
-  title: string;
-  date: string;
-  author?: string;
-  profileImgUrl?: string;
-  type: '공개' | '비공개' | '퀘스트' | '공유';
-  mapImageUrl: string;
-  isLiked?: boolean;
-};
-
 export type CardListProps = {
   type?: 'roadmap' | 'sharemap' | 'quest';
-};
-
-export type MypagePostProps = {
-  activeTab: '작성글' | '참여글' | '좋아요글';
 };
 
 export type ButtonProps = {

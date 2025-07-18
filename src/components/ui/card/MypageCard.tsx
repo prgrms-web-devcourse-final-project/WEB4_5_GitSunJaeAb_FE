@@ -28,7 +28,6 @@ export default function MypageCard({
       className="w-full h-[227px] 2xl:h-[300px] bg-white overflow-hidden rounded-lg shadow-sm cursor-pointer transition-all duration-300 ease-in-out 
              hover:shadow-lg hover:-translate-y-1"
     >
-      {/* 이미지 */}
       <div className="relative w-full h-2/3">
         <Image
           src={mapImageUrl}

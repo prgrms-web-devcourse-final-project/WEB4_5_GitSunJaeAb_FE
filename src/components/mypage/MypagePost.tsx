@@ -1,46 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MypageCard from '../ui/card/MypageCard';
-import { MypagePostProps } from '@/types/type';
+import { MypagePostProps, RoadmapResponse } from '@/types/myprofile';
+import { useProfileStore } from '@/store/profileStore';
 
-export default function MypagePost({ activeTab }: MypagePostProps) {
-  const initialCards = Array(8)
-    .fill(null)
-    .map((_, idx) => ({
-      id: idx,
-      title: '서울 야경 따라',
-      date: '2025.07.07',
-      author: activeTab === '작성글' ? undefined : '닉네임',
-      profileImgUrl: activeTab === '작성글' ? undefined : '/assets/google.svg',
-      type:
-        idx % 4 === 0
-          ? '공개'
-          : idx % 4 === 1
-          ? '비공개'
-          : idx % 4 === 2
-          ? '퀘스트'
-          : '공유',
-      imageUrl: '/map.png',
-      isLiked: idx % 3 === 0,
-    }));
+export default function MypagePost({
+  activeTab,
+  searchKeyword,
+}: MypagePostProps) {
+  const [cards, setCards] = useState<RoadmapResponse[]>([]);
+  const { member } = useProfileStore();
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const [cards, setCards] = useState(initialCards);
+  useEffect(() => {
+    const fetchRoadmaps = async () => {
+      if (!member) return;
 
-  // activeTab이 바뀌었을 때 카드 갱신
-  if (
-    (activeTab === '작성글' && cards[0]?.author !== undefined) ||
-    (activeTab !== '작성글' && cards[0]?.author === undefined)
-  ) {
-    setCards(
-      cards.map((card) => ({
-        ...card,
-        author: activeTab === '작성글' ? undefined : '닉네임',
-        profileImgUrl:
-          activeTab === '작성글' ? undefined : '/assets/google.svg',
-      }))
-    );
-  }
+      try {
+        let url = '';
+        if (activeTab === '작성글') {
+          url = `${API_BASE_URL}roadmaps/member?memberId=${member.id}`;
+        } else if (activeTab === '좋아요글') {
+          url = `${API_BASE_URL}bookmarks/bookmarkedRoadmaps`;
+        } else {
+          return;
+        }
+
+        const res = await fetch(url);
+        const data = await res.json();
+        setCards(data.roadmaps);
+      } catch (err) {
+        console.error('로드맵 불러오기 실패:', err);
+      }
+    };
+
+    fetchRoadmaps();
+  }, [activeTab, member, API_BASE_URL]);
+
+  const mapType = (roadmap: RoadmapResponse): '공개' | '비공개' | '공유' => {
+    if (roadmap.roadmapType === 'SHARED') return '공유';
+    if (roadmap.roadmapType === 'PERSONAL') {
+      return roadmap.isPublic ? '공개' : '비공개';
+    }
+    return '공개';
+  };
 
   const toggleLike = (id: number) => {
     setCards((prev) =>
@@ -50,19 +54,34 @@ export default function MypagePost({ activeTab }: MypagePostProps) {
     );
   };
 
+  const filteredCards = cards.filter((card) => {
+    const titleMatch = card.title
+      .toLowerCase()
+      .includes(searchKeyword.toLowerCase());
+    const authorMatch = card.member?.nickname
+      ?.toLowerCase()
+      .includes(searchKeyword.toLowerCase());
+    return titleMatch || authorMatch;
+  });
+
   return (
     <div className="grid grid-cols-4 gap-6">
-      {cards.map((card) => (
+      {filteredCards.map((card) => (
         <MypageCard
           key={card.id}
           title={card.title}
-          date={card.date}
-          {...(card.author ? { author: card.author } : {})}
-          {...(card.profileImgUrl ? { profileImgUrl: card.profileImgUrl } : {})}
-          type={card.type as '공개' | '비공개' | '퀘스트' | '공유'}
-          mapImageUrl={card.imageUrl}
+          date={'2025.07.07'}
+          type={mapType(card)}
+          mapImageUrl={card.thumbnail || '/map.png'}
           isLiked={card.isLiked}
           onToggleLike={() => toggleLike(card.id)}
+          {...(activeTab === '좋아요글' && card.member
+            ? {
+                author: card.member.nickname,
+                profileImgUrl:
+                  card.member.profileImage || '/assets/userProfile.png',
+              }
+            : {})}
         />
       ))}
     </div>

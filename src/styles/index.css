@@ -51,7 +51,7 @@
 @font-face {
   font-family: 'vitro-core';
   font-weight: bold;
-  src: url('/assets/font/VITRO CORE OTF.otf') format('opentype');
+  src: url('/assets/font/VITRO-CORE-OTF.woff2') format('opentype');
 }
 
 @theme {

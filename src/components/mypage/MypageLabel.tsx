@@ -1,24 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../ui/Button';
 import { CircleAlert, Medal } from 'lucide-react';
 import ProfileEditModal from './ProfileEditModal';
+import Image from 'next/image';
+import { useProfileStore } from '@/store/profileStore';
 
 export default function MypageLabel() {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const member = useProfileStore((state) => state.member);
+  const fetchMember = useProfileStore((state) => state.fetchMember);
+
+  // 프로필 정보 불러오기
+  useEffect(() => {
+    fetchMember();
+  }, [fetchMember]);
+
+  // 모달 열릴 때 body 스크롤 막기
+  useEffect(() => {
+    document.body.style.overflow = isEditOpen ? 'hidden' : 'auto';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isEditOpen]);
+
   return (
     <>
       <div className="flex items-center gap-6 h-[150px] px-48 mb-5">
-        {/* 프로필 */}
-        <div className="relative -top-13 w-[140px] h-[140px] rounded-full overflow-hidden bg-gray-200" />
+        {/* 프로필 이미지 */}
+        <div className="relative -top-13 w-[140px] h-[140px] rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+          <Image
+            src={member?.profileImage || '/assets/userProfile.png'}
+            alt="프로필 이미지"
+            fill
+            sizes="140px"
+            priority
+            className="object-cover"
+          />
+        </div>
+
+        {/* 프로필 정보 */}
         <div className="flex justify-between items-start flex-1 mt-[-40px]">
           <div>
             <div className="flex items-center gap-2 text-2xl font-semibold">
-              지지지{' '}
+              {member?.nickname || '닉네임'}
               <span>
                 <Medal size={20} className="text-[#D5A208]" />
-              </span>{' '}
+              </span>
               <span>
                 <CircleAlert size={20} className="text-[#74B9FF]" />
               </span>
@@ -44,6 +73,7 @@ export default function MypageLabel() {
           </Button>
         </div>
       </div>
+
       {isEditOpen && <ProfileEditModal onClose={() => setIsEditOpen(false)} />}
     </>
   );
