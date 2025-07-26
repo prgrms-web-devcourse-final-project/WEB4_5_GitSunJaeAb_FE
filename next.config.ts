@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       'lyrvpfgoxwppqtuuolav.supabase.co',
       'example.com',
       'mapick.cedartodo.uk',
+      'cdn.example.com',
       'localhost',
     ],
     // 이미지 테스트용

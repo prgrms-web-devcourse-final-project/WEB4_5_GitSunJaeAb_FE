@@ -81,7 +81,7 @@ export type MypagePostProps = {
 
 export type ProfileEditState = {
   nickname: string;
-  profileImage: string | null;
+  profileImage: string | File | null;
 
   password: string;
   newPassword: string;
@@ -91,11 +91,26 @@ export type ProfileEditState = {
   setSelectedCategoryIds: (ids: number[]) => void;
 
   setNickname: (nickname: string) => void;
-  setProfileImage: (image: string | null) => void;
+  setProfileImage: (image: string | File | null) => void;
 
   setPassword: (v: string) => void;
   setNewPassword: (v: string) => void;
   setConfirmPassword: (v: string) => void;
 
   reset: () => void;
+};
+
+export type Achievement = {
+  id: number;
+  name: string;
+  image: string;
+};
+
+export type CommentItem = {
+  id: number;
+  content: string;
+  roadmap: number | null;
+  quest: number | null;
+  postTitle: string;
+  createdAt: string;
 };

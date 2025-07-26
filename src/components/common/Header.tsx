@@ -33,7 +33,7 @@ export default function Header({ isAdmin = false }: HeaderProps) {
   const handleNoti = () => setIsNotiOpen((prev) => !prev);
 
   const user = useAuthStore((state) => state.user);
-  const profileImage = user?.profileImage;
+  const profileImage = user?.profileImage ?? defaultProfile;
 
   const userNavItems = [
     { name: '로드맵', href: '/dashbord/roadmap' },
@@ -119,7 +119,7 @@ export default function Header({ isAdmin = false }: HeaderProps) {
           <Image
             width={100}
             height={100}
-            src={profileImage || defaultProfile}
+            src={profileImage}
             alt="User Profile"
             className="size-[40px] rounded-full object-cover cursor-pointer border border-[var(--gray-100)] hover:ring-2 hover:ring-[var(--primary-300)]"
             onClick={() => setIsUserModalOpen((prev) => !prev)}

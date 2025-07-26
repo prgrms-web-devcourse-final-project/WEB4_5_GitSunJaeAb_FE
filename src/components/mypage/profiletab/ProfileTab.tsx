@@ -14,6 +14,7 @@ export default function ProfileTab() {
     useProfileEditStore();
 
   const [isEditingName, setIsEditingName] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMember();
@@ -29,11 +30,8 @@ export default function ProfileTab() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setProfileImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
@@ -50,7 +48,6 @@ export default function ProfileTab() {
       </p>
 
       <div className="flex flex-col items-center gap-4">
-        {/* 이미지 */}
         <div className="flex flex-col items-center group relative">
           <div
             className="rounded-full size-[180px] bg-[var(--gray-100)] overflow-hidden relative cursor-pointer group"
@@ -58,9 +55,13 @@ export default function ProfileTab() {
           >
             {profileImage ? (
               <Image
-                src={profileImage}
+                src={
+                  previewUrl ??
+                  (typeof profileImage === 'string' ? profileImage : '')
+                }
                 alt="profile"
                 fill
+                sizes="96px"
                 className="object-cover rounded-full transition duration-200 group-hover:brightness-75"
               />
             ) : (
@@ -85,7 +86,6 @@ export default function ProfileTab() {
           />
         </div>
 
-        {/* 닉네임 */}
         <div className="flex gap-2 items-center ml-5 w-[250px] justify-center">
           {isEditingName ? (
             <>

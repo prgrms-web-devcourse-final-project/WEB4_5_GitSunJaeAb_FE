@@ -4,6 +4,7 @@ import { useState } from 'react';
 import MypageLayer from './MypageLayer';
 import MypagePost from './MypagePost';
 import SearchInput from '../ui/SearchInputs';
+import MypageComment from './MypageComment';
 
 export default function Mypage() {
   const [activeTab, setActiveTab] = useState('작성글');
@@ -14,7 +15,7 @@ export default function Mypage() {
       <div className="flex justify-between items-center mb-10">
         {/* 메뉴 */}
         <ul className="flex gap-8 text-lg text-[var(--gray-300)] font-medium">
-          {['작성글', '참여글', '좋아요글', '레이어'].map((tab) => (
+          {['작성글', '참여글', '좋아요글', '댓글', '레이어'].map((tab) => (
             <li
               key={tab}
               className={`pb-1 cursor-pointer border-b-2 transition-all ${
@@ -43,7 +44,9 @@ export default function Mypage() {
       </div>
 
       <div className="mt-4 h-[calc(100%-80px)] overflow-y-auto pr-2">
-        {activeTab === '레이어' ? (
+        {activeTab === '댓글' ? (
+          <MypageComment searchKeyword={searchKeyword} />
+        ) : activeTab === '레이어' ? (
           <MypageLayer searchKeyword={searchKeyword} />
         ) : (
           <MypagePost

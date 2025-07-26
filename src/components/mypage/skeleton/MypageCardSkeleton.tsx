@@ -1,5 +1,3 @@
-'use client';
-
 export default function MypageCardSkeleton() {
   return (
     <div className="w-full h-[227px] 2xl:h-[300px] bg-white overflow-hidden rounded-lg shadow-sm animate-pulse">

@@ -37,6 +37,13 @@ export default function MypageCard({
     }
   };
 
+  const getValidSrc = (url: unknown): string => {
+    if (typeof url === 'string' && /^https?:\/\/|^\/.*/.test(url.trim())) {
+      return url.trim();
+    }
+    return '/map.png';
+  };
+
   return (
     <div
       onClick={handleClick}
@@ -45,7 +52,7 @@ export default function MypageCard({
     >
       <div className="relative w-full h-2/3">
         <Image
-          src={mapImageUrl}
+          src={getValidSrc(mapImageUrl)}
           alt={title}
           fill
           priority
@@ -53,6 +60,7 @@ export default function MypageCard({
           className="w-full h-full object-cover"
           draggable={false}
         />
+
         <span
           className={`absolute top-2 right-2 px-2 py-1 text-xs rounded ${badgeClass}`}
         >
@@ -66,7 +74,7 @@ export default function MypageCard({
           <p className="text-base text-[var(--black)] pt-1">{title}</p>
           <button
             onClick={(e) => {
-              e.stopPropagation(); // 클릭 이벤트 버블링 방지
+              e.stopPropagation();
               onToggleLike?.();
             }}
             className="w-6 h-6 flex items-center justify-center text-[var(--gray-200)]"
